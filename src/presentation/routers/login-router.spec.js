@@ -4,9 +4,15 @@ const UnauthorizedError = require('../helpers/unauthorized-error')
 
 const makeSut = () => {
   class AuthUseCaseSpy {
+    constructor () {
+      this.acessToken = 'valid_token'
+    }
+
     auth (email, password) {
       this.email = email
       this.password = password
+
+      return this.acessToken
     }
   }
   const authUseCaseSpy = new AuthUseCaseSpy()
@@ -44,8 +50,7 @@ describe('Login route', () => {
 
   test('Should return 400 if httpRequest has no body', () => {
     const { sut } = makeSut()
-    const httpRequest = {}
-    const httpResponse = sut.route(httpRequest)
+    const httpResponse = sut.route({})
     expect(httpResponse.statusCode).toBe(500)
   })
 
@@ -69,7 +74,8 @@ describe('Login route', () => {
   })
 
   test('Should return 401 when invalid credentials are provided', () => {
-    const { sut } = makeSut()
+    const { sut, authUseCaseSpy } = makeSut()
+    authUseCaseSpy.acessToken = null
     const httpRequest = {
       body: {
         email: 'any_invalid',
@@ -81,12 +87,24 @@ describe('Login route', () => {
     expect(httpResponse.body).toEqual(new UnauthorizedError())
   })
 
-  test('Should return 500 if no AuthUseCase is provided', () => {
-    const sut = new LoginRouter()
+  test('Should return 200 when valid credentials are provided', () => {
+    const { sut } = makeSut()
     const httpRequest = {
       body: {
         email: 'any_invalid',
         password: 'any_invalid'
+      }
+    }
+    const httpResponse = sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(200)
+  })
+
+  test('Should return 500 if no AuthUseCase is provided', () => {
+    const sut = new LoginRouter()
+    const httpRequest = {
+      body: {
+        email: 'any',
+        password: 'any'
       }
     }
     const httpResponse = sut.route(httpRequest)
@@ -97,8 +115,8 @@ describe('Login route', () => {
     const sut = new LoginRouter({})
     const httpRequest = {
       body: {
-        email: 'any_invalid',
-        password: 'any_invalid'
+        email: 'any',
+        password: 'any'
       }
     }
     const httpResponse = sut.route(httpRequest)
