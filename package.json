@@ -1,0 +1,19 @@
+{
+  "name": "api-clean-architecture-and-tdd",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "husky": "^4.2.5",
+    "jest": "^26.2.2",
+    "lint-staged": "^10.2.11",
+    "standard": "^14.3.4"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.9.27"
+  },
+  "scripts": {
+    "test": "jest"
+  }
+}
