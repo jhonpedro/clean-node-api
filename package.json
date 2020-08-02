@@ -20,7 +20,8 @@
   },
   "scripts": {
     "test": "jest --silente=true --noStackTrace --passWithNoTests --runInBand",
-    "test:unit": "npm test -- --watch",
+    "test:unit": "npm test -- --watch -c jest-unit-config.js",
+    "test:integration": "npm test -- --watch -c jest-integration-config.js",
     "test:staged": "npm test -- --findRelatedTests ",
     "test:ci": "npm test --coverage"
   }
