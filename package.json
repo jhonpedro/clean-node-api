@@ -19,7 +19,7 @@
     "mongoose": "^5.9.27"
   },
   "scripts": {
-    "test": "jest --watch",
-    "test:staged": "jest --passWithNoTests"
+    "test": "jest --watch -o=true --silent=true",
+    "test:staged": "jest --passWithNoTests --findRelatedTests --silent=true"
   }
 }
