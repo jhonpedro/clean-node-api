@@ -15,11 +15,16 @@ module.exports = class AuthUseCase {
         throw new MissingParamError('password')
       }
       const user = await this.loadUserByEmailRepository.load(email)
-      if (!user) {
+      if (user) {
+        const isValid = await this.encrypterSpy.compare(password, user.password)
+        if (isValid) {
+
+        } else {
+          return null
+        }
+      } else {
         return null
       }
-      await this.encrypterSpy.compare(password, user.password)
-      return null
     } catch (error) {
       console.log(error.message)
       throw new InvalidParamError(error.message)
