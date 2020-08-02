@@ -25,21 +25,37 @@ const makeLoadUserByEmailRepository = () => {
   }
   const loadUserByEmailRepositorySpy = new LoadUserByEmailRepository()
   loadUserByEmailRepositorySpy.user = {
+    id: 'any_id',
     password: 'hashed_password'
   }
 
   return loadUserByEmailRepositorySpy
 }
 
+const makeTokenGenerator = () => {
+  class TokenGenerator {
+    async generate (userId) {
+      this.userId = userId
+      return this.acessToken
+    }
+  }
+  const tokenGeneratorSpy = new TokenGenerator()
+  tokenGeneratorSpy.acessToken = 'any_token'
+  return tokenGeneratorSpy
+}
+
 const makeSut = () => {
   const encryperSpy = makeEncrypter()
   const loadUserByEmailRepositorySpy = makeLoadUserByEmailRepository()
-  const sut = new AuthUseCase(loadUserByEmailRepositorySpy, encryperSpy)
+  const tokenGeneratorSpy = makeTokenGenerator()
+
+  const sut = new AuthUseCase(loadUserByEmailRepositorySpy, encryperSpy, tokenGeneratorSpy)
 
   return {
     sut,
     loadUserByEmailRepositorySpy,
-    encryperSpy
+    encryperSpy,
+    tokenGeneratorSpy
   }
 }
 
@@ -95,8 +111,9 @@ describe('Auth UseCase', () => {
     const { sut, encryperSpy } = makeSut()
     encryperSpy.isValid = false
     const email = 'valid_email@email.com'
+    const password = 'invalid_password'
 
-    const acessToken = await sut.auth(email, 'invalid_password')
+    const acessToken = await sut.auth(email, password)
     await expect(acessToken).toBeNull()
   })
 
@@ -108,5 +125,14 @@ describe('Auth UseCase', () => {
     await sut.auth(email, password)
     await expect(encryperSpy.password).toBe(password)
     await expect(encryperSpy.hashedPassword).toBe(loadUserByEmailRepositorySpy.user.password)
+  })
+
+  test('Should call TokenGenerator with correct UserID', async () => {
+    const { sut, loadUserByEmailRepositorySpy, tokenGeneratorSpy } = makeSut()
+    const email = 'valid_email@email.com'
+    const password = 'valid_password'
+
+    await sut.auth(email, password)
+    await expect(tokenGeneratorSpy.userId).toBe(loadUserByEmailRepositorySpy.user.id)
   })
 })
