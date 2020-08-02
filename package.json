@@ -20,6 +20,7 @@
   },
   "scripts": {
     "test": "jest --watch -o=true --silent=true",
-    "test:staged": "jest --passWithNoTests --findRelatedTests --silent=true"
+    "test:staged": "jest --passWithNoTests --findRelatedTests --silent=true",
+    "test:ci": "jest --coverage --silent=true"
   }
 }
