@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "express": "^4.17.1",
-    "mongoose": "^5.9.27"
+    "mongoose": "^5.9.27",
+    "validator": "^13.1.1"
   },
   "scripts": {
     "test": "jest --silente=true --noStackTrace --passWithNoTests --runInBand",
