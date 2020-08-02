@@ -19,13 +19,12 @@ module.exports = class AuthUseCase {
       if (user) {
         const isValid = await this.encrypterSpy.compare(password, user.password)
         if (isValid) {
-          await this.tokenGeneratorSpy.generate(user.id)
-        } else {
-          return null
+          const acessToken = await this.tokenGeneratorSpy.generate(user.id)
+          return acessToken
         }
-      } else {
-        return null
       }
+
+      return null
     } catch (error) {
       console.log(error.message)
       throw new InvalidParamError(error.message)
