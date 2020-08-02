@@ -19,8 +19,9 @@
     "mongoose": "^5.9.27"
   },
   "scripts": {
-    "test": "jest --watch -o=true --silent=true",
-    "test:staged": "jest --passWithNoTests --findRelatedTests --silent=true",
-    "test:ci": "jest --coverage --silent=true"
+    "test": "jest --silente=true --noStackTrace --passWithNoTests --runInBand",
+    "test:unit": "npm test -- --watch",
+    "test:staged": "npm test -- --findRelatedTests ",
+    "test:ci": "npm test --coverage"
   }
 }
