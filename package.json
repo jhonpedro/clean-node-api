@@ -20,6 +20,6 @@
   },
   "scripts": {
     "test": "jest --watch",
-    "test:staged": "jest"
+    "test:staged": "jest --passWithNoTests"
   }
 }
