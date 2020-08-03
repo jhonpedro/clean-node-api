@@ -15,6 +15,7 @@
     "standard": "^14.3.4"
   },
   "dependencies": {
+    "bcrypt": "^5.0.0",
     "express": "^4.17.1",
     "mongoose": "^5.9.27",
     "validator": "^13.1.1"

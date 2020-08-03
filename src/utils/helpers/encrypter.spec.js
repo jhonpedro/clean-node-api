@@ -1,14 +1,5 @@
 const bcrypt = require('bcrypt')
-
-class Encrypter {
-  async compare (value, hash) {
-    this.value = value
-    this.hash = hash
-
-    const isValid = await bcrypt.compare(this.value, this.hash)
-    return isValid
-  }
-}
+const Encrypter = require('./encrypter')
 
 const makeEncrypter = () => {
   const encrypterSpy = new Encrypter()
@@ -44,5 +35,19 @@ describe('Encrypter', () => {
     await sut.compare('value_test', 'hash_test')
     expect(sut.value).toBe('value_test')
     expect(sut.hash).toBe('hash_test')
+  })
+
+  test('Should throw if value is not provided', async () => {
+    const { sut } = makeSut()
+
+    const promise = sut.compare(null, 'hash_test')
+    expect(promise).rejects.toThrow()
+  })
+
+  test('Should throw if hash is not provided', async () => {
+    const { sut } = makeSut()
+
+    const promise = sut.compare('value_test', null)
+    expect(promise).rejects.toThrow()
   })
 })
