@@ -71,13 +71,34 @@ const makeTokenGeneratorWithError = () => {
   return new TokenGeneratorSpy()
 }
 
+const makeUpdateAccessTokenRepository = () => {
+  class UpdateAccessTokenRepository {
+    async update (userId, acessToken) {
+      this.userId = userId
+      this.acessToken = acessToken
+    }
+  }
+  return new UpdateAccessTokenRepository()
+}
+
+// const makeUpdateAccessTokenRepositoryWithError = () => {
+//   class UpdateAccessTokenRepository {
+//     async update () {
+//       throw new Error()
+//     }
+//   }
+//   return new UpdateAccessTokenRepository()
+// }
+
 const makeSut = () => {
   const encrypterSpy = makeEncrypter()
   const loadUserByEmailRepositorySpy = makeLoadUserByEmailRepository()
   const tokenGeneratorSpy = makeTokenGenerator()
+  const updateAccessTokenRepositorySpy = makeUpdateAccessTokenRepository()
 
   const sut = new AuthUseCase({
     loadUserByEmailRepository: loadUserByEmailRepositorySpy,
+    updateAccessTokenRepository: updateAccessTokenRepositorySpy,
     encrypter: encrypterSpy,
     tokenGenerator: tokenGeneratorSpy
   })
@@ -86,7 +107,8 @@ const makeSut = () => {
     sut,
     loadUserByEmailRepositorySpy,
     encrypterSpy,
-    tokenGeneratorSpy
+    tokenGeneratorSpy,
+    updateAccessTokenRepositorySpy
   }
 }
 
@@ -159,6 +181,16 @@ describe('Auth UseCase', () => {
     const acessToken = await sut.auth(email, password)
     await expect(acessToken).toBe(tokenGeneratorSpy.acessToken)
     await expect(acessToken).toBeTruthy()
+  })
+
+  test('Should return correct Acess Token when call UpdateAccessTokenRepository', async () => {
+    const { sut, updateAccessTokenRepositorySpy, loadUserByEmailRepositorySpy, tokenGeneratorSpy } = makeSut()
+    const email = 'valid_email@email.com'
+    const password = 'valid_password'
+
+    await sut.auth(email, password)
+    await expect(updateAccessTokenRepositorySpy.userId).toBe(loadUserByEmailRepositorySpy.user.id)
+    await expect(updateAccessTokenRepositorySpy.acessToken).toBe(tokenGeneratorSpy.acessToken)
   })
 
   test('Should throw if dependencies are not provided or that dependencies are invalid', async () => {
