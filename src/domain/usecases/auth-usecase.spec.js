@@ -81,14 +81,14 @@ const makeUpdateAccessTokenRepository = () => {
   return new UpdateAccessTokenRepository()
 }
 
-// const makeUpdateAccessTokenRepositoryWithError = () => {
-//   class UpdateAccessTokenRepository {
-//     async update () {
-//       throw new Error()
-//     }
-//   }
-//   return new UpdateAccessTokenRepository()
-// }
+const makeUpdateAccessTokenRepositoryWithError = () => {
+  class UpdateAccessTokenRepository {
+    async update () {
+      throw new Error()
+    }
+  }
+  return new UpdateAccessTokenRepository()
+}
 
 const makeSut = () => {
   const encrypterSpy = makeEncrypter()
@@ -197,6 +197,7 @@ describe('Auth UseCase', () => {
     const invalidDependency = {}
     const loadUserByEmailRepository = makeLoadUserByEmailRepository()
     const encrypter = makeEncrypter()
+    const tokenGenerator = makeTokenGenerator()
     const suts = [].concat(
       new AuthUseCase(),
       new AuthUseCase({
@@ -233,6 +234,18 @@ describe('Auth UseCase', () => {
         loadUserByEmailRepository,
         encrypter,
         tokenGenerator: invalidDependency
+      }),
+      new AuthUseCase({
+        loadUserByEmailRepository,
+        encrypter,
+        tokenGenerator,
+        updateAccessTokenRepository: null
+      }),
+      new AuthUseCase({
+        loadUserByEmailRepository,
+        encrypter,
+        tokenGenerator,
+        updateAccessTokenRepository: invalidDependency
       })
     )
     const email = 'valid_email@email.com'
@@ -247,21 +260,31 @@ describe('Auth UseCase', () => {
     const loadUserByEmailRepository = makeLoadUserByEmailRepository()
     const encrypter = makeEncrypter()
     const tokenGenerator = makeTokenGenerator()
+    const updateAccessTokenRepository = makeUpdateAccessTokenRepository()
     const suts = [].concat(
       new AuthUseCase({
         loadUserByEmailRepository: makeLoadUserByEmailRepositoryWithError(),
         encrypter,
-        tokenGenerator
+        tokenGenerator,
+        updateAccessTokenRepository
       }),
       new AuthUseCase({
         loadUserByEmailRepository,
         encrypter: makeEncrypterWithError(),
-        tokenGenerator
+        tokenGenerator,
+        updateAccessTokenRepository
       }),
       new AuthUseCase({
         loadUserByEmailRepository,
         encrypter,
-        tokenGenerator: makeTokenGeneratorWithError()
+        tokenGenerator: makeTokenGeneratorWithError(),
+        updateAccessTokenRepository
+      }),
+      new AuthUseCase({
+        loadUserByEmailRepository,
+        encrypter,
+        tokenGenerator: makeTokenGeneratorWithError(),
+        updateAccessTokenRepository: makeUpdateAccessTokenRepositoryWithError()
       })
     )
     const email = 'valid_email@email.com'
