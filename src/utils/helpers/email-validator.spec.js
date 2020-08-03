@@ -27,4 +27,10 @@ describe('Email validator', () => {
     sut.isValid('email')
     expect(validator.email).toBe('email')
   })
+
+  test('Should throw if email is not provided', () => {
+    validator.isEmailValid = false
+    const sut = makeSut()
+    expect(sut.isValid).toThrow()
+  })
 })
