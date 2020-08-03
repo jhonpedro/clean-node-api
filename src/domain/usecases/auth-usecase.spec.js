@@ -15,6 +15,15 @@ const makeEncrypter = () => {
   return encryperSpy
 }
 
+const makeEncrypterWithError = () => {
+  class EncrypterSpy {
+    async compare () {
+      throw new Error()
+    }
+  }
+  return new EncrypterSpy()
+}
+
 const makeLoadUserByEmailRepository = () => {
   class LoadUserByEmailRepository {
     async load (email) {
@@ -32,6 +41,15 @@ const makeLoadUserByEmailRepository = () => {
   return loadUserByEmailRepositorySpy
 }
 
+const makeLoadUserByEmailRepositoryWithError = () => {
+  class LoadUserByEmailRepositorySpy {
+    async load () {
+      throw new Error()
+    }
+  }
+  return new LoadUserByEmailRepositorySpy()
+}
+
 const makeTokenGenerator = () => {
   class TokenGenerator {
     async generate (userId) {
@@ -42,6 +60,15 @@ const makeTokenGenerator = () => {
   const tokenGeneratorSpy = new TokenGenerator()
   tokenGeneratorSpy.acessToken = 'any_token'
   return tokenGeneratorSpy
+}
+
+const makeTokenGeneratorWithError = () => {
+  class TokenGeneratorSpy {
+    async generate () {
+      throw new Error()
+    }
+  }
+  return new TokenGeneratorSpy()
 }
 
 const makeSut = () => {
@@ -84,6 +111,54 @@ describe('Auth UseCase', () => {
 
     await sut.auth(email, 'password')
     expect(loadUserByEmailRepositorySpy.email).toEqual(email)
+  })
+
+  test('Should return null if invalid email is provided', async () => {
+    const { sut, loadUserByEmailRepositorySpy } = makeSut()
+    const email = 'invalid_email@email.com'
+    loadUserByEmailRepositorySpy.user = null
+
+    const acessToken = await sut.auth(email, 'password')
+    await expect(acessToken).toBeNull()
+  })
+
+  test('Should return null if wrong password is provided', async () => {
+    const { sut, encrypterSpy } = makeSut()
+    encrypterSpy.isValid = false
+    const email = 'valid_email@email.com'
+    const password = 'invalid_password'
+
+    const acessToken = await sut.auth(email, password)
+    await expect(acessToken).toBeNull()
+  })
+
+  test('Should call encrypter with correct values', async () => {
+    const { sut, loadUserByEmailRepositorySpy, encrypterSpy } = makeSut()
+    const email = 'valid_email@email.com'
+    const password = 'valid_password'
+
+    await sut.auth(email, password)
+    await expect(encrypterSpy.password).toBe(password)
+    await expect(encrypterSpy.hashedPassword).toBe(loadUserByEmailRepositorySpy.user.password)
+  })
+
+  test('Should call TokenGenerator with correct UserID', async () => {
+    const { sut, loadUserByEmailRepositorySpy, tokenGeneratorSpy } = makeSut()
+    const email = 'valid_email@email.com'
+    const password = 'valid_password'
+
+    await sut.auth(email, password)
+    await expect(tokenGeneratorSpy.userId).toBe(loadUserByEmailRepositorySpy.user.id)
+  })
+
+  test('Should return Acess token if valid params are provided', async () => {
+    const { sut, tokenGeneratorSpy } = makeSut()
+    const email = 'valid_email@email.com'
+    const password = 'valid_password'
+
+    const acessToken = await sut.auth(email, password)
+    await expect(acessToken).toBe(tokenGeneratorSpy.acessToken)
+    await expect(acessToken).toBeTruthy()
   })
 
   test('Should throw if dependencies are not provided or that dependencies are invalid', async () => {
@@ -136,51 +211,32 @@ describe('Auth UseCase', () => {
     }
   })
 
-  test('Should return null if invalid email is provided', async () => {
-    const { sut, loadUserByEmailRepositorySpy } = makeSut()
-    const email = 'invalid_email@email.com'
-    loadUserByEmailRepositorySpy.user = null
-
-    const acessToken = await sut.auth(email, 'password')
-    await expect(acessToken).toBeNull()
-  })
-
-  test('Should return null if wrong password is provided', async () => {
-    const { sut, encrypterSpy } = makeSut()
-    encrypterSpy.isValid = false
+  test('Should throw if dependencies throws', async () => {
+    const loadUserByEmailRepository = makeLoadUserByEmailRepository()
+    const encrypter = makeEncrypter()
+    const tokenGenerator = makeTokenGenerator()
+    const suts = [].concat(
+      new AuthUseCase({
+        loadUserByEmailRepository: makeLoadUserByEmailRepositoryWithError(),
+        encrypter,
+        tokenGenerator
+      }),
+      new AuthUseCase({
+        loadUserByEmailRepository,
+        encrypter: makeEncrypterWithError(),
+        tokenGenerator
+      }),
+      new AuthUseCase({
+        loadUserByEmailRepository,
+        encrypter,
+        tokenGenerator: makeTokenGeneratorWithError()
+      })
+    )
     const email = 'valid_email@email.com'
-    const password = 'invalid_password'
 
-    const acessToken = await sut.auth(email, password)
-    await expect(acessToken).toBeNull()
-  })
-
-  test('Should call encrypter with correct values', async () => {
-    const { sut, loadUserByEmailRepositorySpy, encrypterSpy } = makeSut()
-    const email = 'valid_email@email.com'
-    const password = 'valid_password'
-
-    await sut.auth(email, password)
-    await expect(encrypterSpy.password).toBe(password)
-    await expect(encrypterSpy.hashedPassword).toBe(loadUserByEmailRepositorySpy.user.password)
-  })
-
-  test('Should call TokenGenerator with correct UserID', async () => {
-    const { sut, loadUserByEmailRepositorySpy, tokenGeneratorSpy } = makeSut()
-    const email = 'valid_email@email.com'
-    const password = 'valid_password'
-
-    await sut.auth(email, password)
-    await expect(tokenGeneratorSpy.userId).toBe(loadUserByEmailRepositorySpy.user.id)
-  })
-
-  test('Should return Acess token if valid params are provided', async () => {
-    const { sut, tokenGeneratorSpy } = makeSut()
-    const email = 'valid_email@email.com'
-    const password = 'valid_password'
-
-    const acessToken = await sut.auth(email, password)
-    await expect(acessToken).toBe(tokenGeneratorSpy.acessToken)
-    await expect(acessToken).toBeTruthy()
+    for (const sut of suts) {
+      const promise = sut.auth(email, 'password')
+      await expect(promise).rejects.toThrow()
+    }
   })
 })
