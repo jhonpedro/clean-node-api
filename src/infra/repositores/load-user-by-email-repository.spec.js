@@ -1,5 +1,5 @@
-const { MongoClient } = require('mongodb')
 const LoadUserByEmailRepository = require('./load-user-by-em-repository')
+const MongoHelper = require('../helper/mongo-helper')
 
 const makeSut = (db) => {
   const userModel = db.collection('users')
@@ -12,22 +12,19 @@ const makeSut = (db) => {
 }
 
 describe('Load user by email repository', () => {
-  let connection
   let db
 
   beforeAll(async () => {
-    connection = await MongoClient.connect(process.env.MONGO_URL, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    })
-    db = await connection.db()
+    await MongoHelper.connect(process.env.MONGO_URL)
+    db = await MongoHelper.getDb()
   })
 
   beforeEach(async () => {
     await db.collection('users').deleteMany()
   })
+
   afterAll(async () => {
-    await connection.close()
+    MongoHelper.closeConnection()
   })
 
   test('Should return null if repository returns null', async () => {
