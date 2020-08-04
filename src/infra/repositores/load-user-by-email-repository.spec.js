@@ -50,4 +50,17 @@ describe('Load user by email repository', () => {
       password: fakeUser.ops[0].password
     })
   })
+
+  test('Should throw if User model is not provided', async () => {
+    const sut = new LoadUserByEmailRepository()
+
+    const promise = sut.load('invalid@email.com')
+    await expect(promise).rejects.toThrow()
+  })
+  test('Should throw if email is not provided', async () => {
+    const { sut } = makeSut(db)
+
+    const promise = sut.load(null)
+    await expect(promise).rejects.toThrow()
+  })
 })
