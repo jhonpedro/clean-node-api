@@ -11,13 +11,15 @@ class LoadUserByEmailRepository {
   }
 }
 
-// const makeSut = () => {
-//   const loadUserByEmailRepository = new LoadUserByEmailRepository()
+const makeSut = (db) => {
+  const userModel = db.collection('users')
+  const loadUserByEmailRepository = new LoadUserByEmailRepository(userModel)
 
-//   return {
-//     sut: loadUserByEmailRepository
-//   }
-// }
+  return {
+    sut: loadUserByEmailRepository,
+    userModel
+  }
+}
 
 describe('Load user by email repository', () => {
   let connection
@@ -39,8 +41,7 @@ describe('Load user by email repository', () => {
   })
 
   test('Should return null if repository returns null', async () => {
-    const userModel = db.collection('users')
-    const sut = new LoadUserByEmailRepository(userModel)
+    const { sut } = makeSut(db)
 
     const user = await sut.load('invalid@email.com')
     expect(user).toBeNull()
@@ -48,11 +49,10 @@ describe('Load user by email repository', () => {
 
   test('Should return user if repository returns a user', async () => {
     const email = 'valid@email.com'
-    const userModel = db.collection('users')
+    const { sut, userModel } = makeSut(db)
     userModel.insertOne({
       email
     })
-    const sut = new LoadUserByEmailRepository(userModel)
 
     const user = await sut.load(email)
     expect(user.email).toBe(email)
