@@ -31,7 +31,7 @@ module.exports = class LoginRouter {
         return HttpResponse.unauthorizedError()
       }
     } catch (error) {
-      console.error(error)
+      console.log(error)
       return HttpResponse.serverError()
     }
   }
