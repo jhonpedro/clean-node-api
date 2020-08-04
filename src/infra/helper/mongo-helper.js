@@ -12,7 +12,7 @@ module.exports = {
     this.db = await this.connection.db(dbName)
   },
   async closeConnection () {
-    await this.connection.close()
+    await this.connection.close(true)
     this.connection = null
     this.db = null
   },

@@ -23,8 +23,9 @@ describe('Load user by email repository', () => {
     await db.collection('users').deleteMany()
   })
 
-  afterAll(async () => {
-    MongoHelper.closeConnection()
+  afterAll(async done => {
+    await MongoHelper.closeConnection()
+    done()
   })
 
   test('Should return null if repository returns null', async () => {
