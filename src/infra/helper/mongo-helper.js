@@ -13,8 +13,6 @@ module.exports = {
   },
   async closeConnection () {
     await this.connection.close(true)
-    this.connection = null
-    this.db = null
   },
   async getDb () {
     if (!this.connection || !this.connection.isConnected()) {

@@ -8,5 +8,6 @@ describe('Mongo helper', () => {
     sut.closeConnection()
     sut.getDb()
     expect(sut.db).toBeTruthy()
+    sut.closeConnection()
   })
 })
