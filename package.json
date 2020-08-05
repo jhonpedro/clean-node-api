@@ -25,7 +25,7 @@
   },
   "scripts": {
     "start": "node src/main/index.js",
-    "test": "jest --silente=true --noStackTrace --passWithNoTests --runInBand",
+    "test": "jest --silente=true --noStackTrace --passWithNoTests --runInBand --detectOpenHandles",
     "test:unit": "npm test -- --watch -o -c jest-unit-config.js",
     "test:integration": "npm test -- --watch -o -c jest-integration-config.js",
     "test:staged": "npm test -- --findRelatedTests ",
