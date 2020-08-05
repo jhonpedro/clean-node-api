@@ -2,3 +2,4 @@
 *.logs
 coverage/
 globalConfig.json
+*.log
