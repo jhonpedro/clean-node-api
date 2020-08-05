@@ -1,7 +1,7 @@
 {
   "name": "api-clean-architecture-and-tdd",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/main/index.js",
   "license": "MIT",
   "standard": {
     "env": [
@@ -23,6 +23,7 @@
     "validator": "^13.1.1"
   },
   "scripts": {
+    "start": "node src/main/index.js",
     "test": "jest --silente=true --noStackTrace --passWithNoTests --runInBand",
     "test:unit": "npm test -- --watch -o -c jest-unit-config.js",
     "test:integration": "npm test -- --watch -c jest-integration-config.js",
