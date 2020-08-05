@@ -25,10 +25,10 @@
   },
   "scripts": {
     "start": "node src/main/index.js",
-    "test": "jest --silente=true --noStackTrace --passWithNoTests --runInBand --detectOpenHandles",
+    "test": "jest --silente=true --noStackTrace --passWithNoTests --runInBand --forceExit",
     "test:unit": "npm test -- --watch -o -c jest-unit-config.js",
     "test:integration": "npm test -- --watch -o -c jest-integration-config.js",
     "test:staged": "npm test -- --findRelatedTests ",
-    "test:ci": "npm test -- --coverage --forceExit"
+    "test:ci": "npm test -- --coverage"
   }
 }
