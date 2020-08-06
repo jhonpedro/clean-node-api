@@ -1,5 +1,5 @@
 <h1 align="center">
-	Api wiht Clean architecture and Test-Driven development
+	Api with Clean architecture and Test-Driven development
 </h1>
 
 <h3 align="center">
